@@ -1,0 +1,53 @@
+<?xml version="1.0" encoding="utf-8"?>
+<navigation xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto" android:id="@+id/nav_graph"
+    app:startDestination="@id/fragmentNotes">
+
+    <fragment
+        android:id="@+id/fragmentNotes"
+        android:name="com.example.fcmandstoreprep.ui.FragmentNotes"
+        android:label="FragmentNotes" >
+        <action
+            android:id="@+id/action_fragmentNotes_to_fragmentMe"
+            app:destination="@id/fragmentMe" />
+        <action
+            android:id="@+id/action_fragmentNotes_to_fragmentAdd"
+            app:destination="@id/fragmentAdd"
+            app:enterAnim="@anim/slide_in_right"
+            app:exitAnim="@anim/slide_out_left"
+            app:popEnterAnim="@anim/slide_in_left"
+            app:popExitAnim="@anim/slide_out_right"/>
+    </fragment>
+    <fragment
+        android:id="@+id/fragmentMessages"
+        android:name="com.example.fcmandstoreprep.ui.FragmentMessages"
+        android:label="FragmentMessages" />
+    <fragment
+        android:id="@+id/fragmentSignIn"
+        android:name="com.example.fcmandstoreprep.ui.FragmentSignIn"
+        android:label="FragmentSignIn" >
+        <action
+            android:id="@+id/action_fragmentSignIn_to_fragmentMe2"
+            app:destination="@id/fragmentMe" />
+    </fragment>
+    <fragment
+        android:id="@+id/fragmentMe"
+        android:name="com.example.fcmandstoreprep.ui.FragmentMe"
+        android:label="FragmentMe" >
+        <action
+            android:id="@+id/action_fragmentMe_to_fragmentSignIn2"
+            app:destination="@id/fragmentSignIn" />
+    </fragment>
+    <fragment
+        android:id="@+id/fragmentAdd"
+        android:name="com.example.fcmandstoreprep.ui.FragmentAdd"
+        android:label="FragmentAdd" >
+        <action
+            android:id="@+id/action_fragmentAdd_to_fragmentNotes"
+            app:destination="@id/fragmentNotes"
+            app:enterAnim="@anim/slide_in_left"
+            app:exitAnim="@anim/slide_out_right"
+            app:popEnterAnim="@anim/slide_in_right"
+            app:popExitAnim="@anim/slide_out_left"/>
+    </fragment>
+</navigation>
