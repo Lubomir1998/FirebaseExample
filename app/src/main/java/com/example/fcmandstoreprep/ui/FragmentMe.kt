@@ -1,6 +1,5 @@
 package com.example.fcmandstoreprep.ui
 
-import android.annotation.SuppressLint
 import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
@@ -15,8 +14,7 @@ import com.example.fcmandstoreprep.databinding.FragmentMeBinding
 import com.example.fcmandstoreprep.dialogs.LogoutDialog
 import com.example.fcmandstoreprep.model.Note
 import com.google.firebase.auth.FirebaseAuth
-import com.google.firebase.firestore.FirebaseFirestore
-import com.google.firebase.firestore.Query
+import com.google.firebase.firestore.*
 
 class FragmentMe : Fragment(R.layout.fragment_me) {
 
@@ -25,6 +23,7 @@ class FragmentMe : Fragment(R.layout.fragment_me) {
     private var notesList = mutableListOf<Note>()
     private val mAdapter = MyNotesAdapter(notesList)
     private val notesCollection = FirebaseFirestore.getInstance().collection("Notes")
+    private lateinit var noteListener: ListenerRegistration
 
     override fun onResume() {
         super.onResume()
@@ -38,6 +37,40 @@ class FragmentMe : Fragment(R.layout.fragment_me) {
     ): View? {
         binding = FragmentMeBinding.inflate(inflater, container, false)
         return binding.root
+    }
+
+    override fun onStart() {
+        super.onStart()
+
+            val query = notesCollection.whereEqualTo("userId", mAuth.currentUser?.uid)
+                .orderBy("timestamp", Query.Direction.DESCENDING)
+
+        noteListener = query.addSnapshotListener { value, error ->
+            if(error != null) {
+                return@addSnapshotListener
+            }
+
+            if(value != null) {
+
+                // we clear the list to avoid duplicate data
+                notesList.clear()
+
+                for (result in value) {
+                    val note = result.toObject(Note::class.java)
+                    notesList.add(note)
+                }
+
+                mAdapter.notifyDataSetChanged()
+            }
+
+        }
+
+
+    }
+
+    override fun onStop() {
+        super.onStop()
+        noteListener.remove()
     }
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
@@ -60,27 +93,10 @@ class FragmentMe : Fragment(R.layout.fragment_me) {
             fragmentManager?.let { it1 -> dialog.show(it1, "tag") }
         }
 
-        showMyNotes()
-
 
     }
 
     private fun isUserLogged(): Boolean = mAuth.currentUser != null
 
-    private fun showMyNotes() {
-        notesCollection
-            .whereEqualTo("userId", mAuth.currentUser?.uid)
-            .orderBy("timestamp", Query.Direction.DESCENDING)
-            .get()
-            .addOnCompleteListener { task ->
-                if(task.isSuccessful) {
-                    for (result in task.result!!) {
-                        val note = result.toObject(Note::class.java)
-                        notesList.add(note)
-                    }
-                    mAdapter.notifyDataSetChanged()
-                }
-            }
-    }
 
 }

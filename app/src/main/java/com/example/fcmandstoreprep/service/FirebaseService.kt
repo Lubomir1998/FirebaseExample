@@ -8,18 +8,27 @@ import android.app.PendingIntent.FLAG_ONE_SHOT
 import android.content.Context
 import android.content.Intent
 import android.os.Build
+import android.util.Log
 import androidx.annotation.RequiresApi
 import androidx.core.app.NotificationCompat
 import com.example.fcmandstoreprep.MainActivity
 import com.example.fcmandstoreprep.R
+import com.google.android.gms.tasks.OnCompleteListener
+import com.google.firebase.iid.FirebaseInstanceId
 import com.google.firebase.messaging.FirebaseMessagingService
 import com.google.firebase.messaging.RemoteMessage
 import kotlin.random.Random
 
 const val CHANNEL_ID = "channel_id"
+const val TAG = "FirebaseService"
 
 class FirebaseService: FirebaseMessagingService() {
 
+    override fun onNewToken(token: String) {
+        super.onNewToken(token)
+
+        Log.d(TAG, "onCreate: $token")
+    }
 
     override fun onMessageReceived(message: RemoteMessage) {
         super.onMessageReceived(message)
@@ -34,8 +43,8 @@ class FirebaseService: FirebaseMessagingService() {
         }
 
         val notification = NotificationCompat.Builder(this, CHANNEL_ID)
-            .setContentTitle(message.notification?.title)
-            .setContentText(message.notification?.body)
+            .setContentTitle(message.notification!!.title)
+            .setContentText(message.notification!!.body)
             .setContentIntent(pendingIntent)
             .setSmallIcon(R.drawable.android_icon)
             .build()

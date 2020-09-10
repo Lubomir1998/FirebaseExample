@@ -20,10 +20,11 @@ class AllNotesAdapter(private var listOfAllNotes: MutableList<Note>): RecyclerVi
     override fun onBindViewHolder(holder: MyViewHolder, position: Int) {
         val current = listOfAllNotes[position]
 
+        holder.userNameTextView.text = current.userName
         if(FirebaseAuth.getInstance().currentUser != null && current.userName == FirebaseAuth.getInstance().currentUser?.displayName){
             holder.userNameTextView.setTextColor(Color.parseColor("#159DF3"))
         }
-        holder.userNameTextView.text = current.userName
+
         holder.titleTextView.text = current.title
         holder.descriptionTextView.text = current.description
 

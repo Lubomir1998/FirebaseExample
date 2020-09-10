@@ -20,7 +20,7 @@ import java.util.*
 class FragmentAdd: Fragment(R.layout.fragment_add) {
 
     private lateinit var binding: FragmentAddBinding
-    private val noteRef = FirebaseFirestore.getInstance().collection("Notes").document()
+    private val noteRef = FirebaseFirestore.getInstance().collection("Notes")
 
 
     override fun onResume() {
@@ -64,7 +64,7 @@ class FragmentAdd: Fragment(R.layout.fragment_add) {
 
             val note = Note(userName!!, title, description, userId)
 
-            noteRef.set(note).addOnSuccessListener {
+            noteRef.add(note).addOnSuccessListener {
                 binding.titleEditText.text.clear()
                 binding.descriptionEditText.text.clear()
                 Snackbar.make(requireView(), "Note added", Snackbar.LENGTH_SHORT).show()

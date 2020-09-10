@@ -1,6 +1,7 @@
 package com.example.fcmandstoreprep.ui
 
 import android.os.Bundle
+import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
@@ -14,7 +15,9 @@ import com.example.fcmandstoreprep.databinding.FragmentNotesBinding
 import com.example.fcmandstoreprep.model.Note
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.firestore.FirebaseFirestore
+import com.google.firebase.firestore.ListenerRegistration
 import com.google.firebase.firestore.Query
+
 
 class FragmentNotes: Fragment(R.layout.fragment_notes) {
 
@@ -22,6 +25,8 @@ class FragmentNotes: Fragment(R.layout.fragment_notes) {
     private var allNotesList = mutableListOf<Note>()
     private val mAdapter = AllNotesAdapter(allNotesList)
     private val notesCollection = FirebaseFirestore.getInstance().collection("Notes")
+    private lateinit var noteListener: ListenerRegistration
+    private val TAG = "Tag"
 
     override fun onResume() {
         super.onResume()
@@ -38,6 +43,32 @@ class FragmentNotes: Fragment(R.layout.fragment_notes) {
         return binding.root
     }
 
+    override fun onStart() {
+        super.onStart()
+        noteListener = notesCollection.orderBy("timestamp", Query.Direction.DESCENDING).addSnapshotListener { value, error ->
+            if(error != null) {
+                return@addSnapshotListener
+            }
+            if(value != null){
+
+                // we clear the list to avoid duplicate data
+                allNotesList.clear()
+
+                for (result in value) {
+                    val note = result.toObject(Note::class.java)
+                    allNotesList.add(note)
+                }
+                mAdapter.notifyDataSetChanged()
+            }
+
+        }
+    }
+
+    override fun onStop() {
+        super.onStop()
+        noteListener.remove()
+    }
+
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
 
@@ -46,9 +77,6 @@ class FragmentNotes: Fragment(R.layout.fragment_notes) {
             adapter = mAdapter
             setHasFixedSize(true)
         }
-
-        showAllNotes()
-
 
         binding.goToAddFragmentBtn.setOnClickListener {
             if(FirebaseAuth.getInstance().currentUser == null){
@@ -61,16 +89,5 @@ class FragmentNotes: Fragment(R.layout.fragment_notes) {
 
     }
 
-    private fun showAllNotes(){
-        notesCollection.orderBy("timestamp", Query.Direction.DESCENDING).get().addOnCompleteListener { task ->
-            if(task.isSuccessful){
-                for(result in task.result!!){
-                    val note = result.toObject(Note::class.java)
-                    allNotesList.add(note)
-                }
-                mAdapter.notifyDataSetChanged()
-            }
-        }
-    }
 
 }
